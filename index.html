@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Simulador de Crédito Carlitos Le Vende</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header class="topbar">
+        <div class="brand">
+            <div class="brand-icon">📱</div>
+
+            <div>
+                <h1>Simulador de Crédito</h1>
+                <p>Financiación de equipos</p>
+            </div>
+        </div>
+    </header>
+
+
+    <main class="container">
+
+        <!-- FORMULARIO -->
+
+        <section class="card">
+
+            <div class="card-header">
+                <h2>Datos de la financiación</h2>
+                <p>Ingresa la información para calcular el crédito.</p>
+            </div>
+
+
+            <!-- CLIENTE -->
+
+            <div class="section">
+
+                <h3>👤 Cliente</h3>
+
+                <div class="form-grid">
+
+                    <div class="input-group">
+                        <label for="cliente">Nombre del cliente</label>
+
+                        <input type="text" id="cliente" placeholder="Ej. Juan Pérez">
+                    </div>
+
+
+                    <div class="input-group">
+                        <label for="telefono">WhatsApp</label>
+
+                        <input type="tel" id="telefono" placeholder="Ej. 3121234567">
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- EQUIPO -->
+
+            <div class="section">
+
+                <h3>📱 Equipo</h3>
+
+                <div class="form-grid">
+
+                    <div class="input-group">
+
+                        <label for="equipo">
+                            Equipo / referencia
+                        </label>
+
+                        <input type="text" id="equipo" placeholder="Ej. iPhone 13 128 GB">
+
+                    </div>
+
+
+                    <div class="input-group">
+
+                        <label for="precio">
+                            Precio del equipo
+                        </label>
+
+                        <div class="money-input">
+
+                            <span>$</span>
+
+                            <input type="number" id="precio" placeholder="1800000" min="0">
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- FINANCIACIÓN -->
+
+            <div class="section">
+
+                <h3>💳 Financiación</h3>
+
+                <div class="form-grid">
+
+                    <div class="input-group">
+
+                        <label for="inicial">
+                            Cuota inicial
+                        </label>
+
+                        <div class="money-input">
+
+                            <span>$</span>
+
+                            <input type="number" id="inicial" placeholder="540000" min="0">
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="input-group">
+
+                        <label for="interes">
+                            Interés mensual
+                        </label>
+
+                        <div class="percent-input">
+
+                            <input type="number" id="interes" placeholder="3" min="0" step="0.01">
+
+                            <span>%</span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="input-group">
+
+                        <label for="cuotas">
+                            Número de cuotas
+                        </label>
+
+                        <select id="cuotas">
+
+                            <option value="1">1 cuota</option>
+                            <option value="2">2 cuotas</option>
+                            <option value="3">3 cuotas</option>
+                            <option value="4">4 cuotas</option>
+                            <option value="5">5 cuotas</option>
+                            <option value="6" selected>6 cuotas</option>
+                            <option value="7">7 cuotas</option>
+                            <option value="8">8 cuotas</option>
+                            <option value="9">9 cuotas</option>
+                            <option value="10">10 cuotas</option>
+                            <option value="11">11 cuotas</option>
+                            <option value="12">12 cuotas</option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <button class="btn-primary" id="calcularBtn">
+                Calcular financiación
+            </button>
+            
+            <button class="btn-secondary" type="button" onclick="nuevaSimulacion()">
+                🗑️ Nueva simulación
+            </button>
+        </section>
+
+
+
+        <!-- RESULTADO -->
+
+        <section class="card result-card" id="resultado">
+
+            <div class="card-header">
+
+                <h2>Resumen del crédito</h2>
+
+                <p>
+                    Resultado de la simulación
+                </p>
+
+            </div>
+
+
+            <div class="summary">
+
+                <div class="summary-item">
+
+                    <span>Precio del equipo</span>
+
+                    <strong id="resPrecio">
+                        $0
+                    </strong>
+
+                </div>
+
+
+                <div class="summary-item">
+
+                    <span>Cuota inicial</span>
+
+                    <strong id="resInicial">
+                        $0
+                    </strong>
+
+                </div>
+
+
+                <div class="summary-item">
+
+                    <span>Monto financiado</span>
+
+                    <strong id="resFinanciado">
+                        $0
+                    </strong>
+
+                </div>
+
+
+                <div class="summary-item">
+
+                    <span>Intereses</span>
+
+                    <strong id="resIntereses">
+                        $0
+                    </strong>
+
+                </div>
+
+
+                <div class="summary-item total">
+
+                    <span>Total a pagar</span>
+
+                    <strong id="resTotal">
+                        $0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="main-payment">
+
+                <span>Valor de cada cuota</span>
+
+                <strong id="resCuota">
+                    $0
+                </strong>
+
+                <small id="resNumeroCuotas">
+                    0 cuotas
+                </small>
+
+            </div>
+
+
+            <!-- TABLA -->
+
+            <div class="table-container">
+
+                <h3>Plan de pagos</h3>
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>#</th>
+                            <th>Fecha</th>
+                            <th>Cuota</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="tablaCuotas">
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <button class="btn-whatsapp" id="whatsappBtn">
+                📲 Enviar por WhatsApp
+            </button>
+
+        </section>
+
+    </main>
+
+
+    <footer>
+
+        <p>
+            Simulador de crédito · Versión 1.0
+        </p>
+
+    </footer>
+
+
+    <script src="script.js"></script>
+
+</body>
+</htm
