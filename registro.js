@@ -300,6 +300,216 @@ function mostrarResumen(credito) {
 
 }
 
+/* =====================================================
+   COMPRIMIR IMAGEN
+===================================================== */
+
+function comprimirImagen(
+    archivo,
+    maxWidth = 1600,
+    calidad = 0.75
+) {
+
+    return new Promise(
+        (resolve, reject) => {
+
+            if (!archivo) {
+
+                resolve(null);
+
+                return;
+
+            }
+
+
+            const lector =
+                new FileReader();
+
+
+            lector.onload =
+                function (evento) {
+
+                    const imagen =
+                        new Image();
+
+
+                    imagen.onload =
+                        function () {
+
+                            let ancho =
+                                imagen.width;
+
+                            let alto =
+                                imagen.height;
+
+
+                            /*
+                               Reducir tamaño si es necesario.
+                            */
+
+                            if (
+                                ancho >
+                                maxWidth
+                            ) {
+
+                                const escala =
+                                    maxWidth /
+                                    ancho;
+
+                                ancho =
+                                    maxWidth;
+
+                                alto =
+                                    alto *
+                                    escala;
+
+                            }
+
+
+                            const canvas =
+                                document.createElement(
+                                    "canvas"
+                                );
+
+
+                            canvas.width =
+                                ancho;
+
+                            canvas.height =
+                                alto;
+
+
+                            const contexto =
+                                canvas.getContext(
+                                    "2d"
+                                );
+
+
+                            contexto.drawImage(
+                                imagen,
+                                0,
+                                0,
+                                ancho,
+                                alto
+                            );
+
+
+                            /*
+                               Convertir a JPEG.
+                            */
+
+                            const dataUrl =
+                                canvas.toDataURL(
+                                    "image/jpeg",
+                                    calidad
+                                );
+
+
+                            /*
+                               Quitar:
+                               data:image/jpeg;base64,
+                            */
+
+                            const base64 =
+                                dataUrl.split(
+                                    ","
+                                )[1];
+
+
+                            resolve({
+
+                                data:
+                                    base64,
+
+                                type:
+                                    "image/jpeg"
+
+                            });
+
+                        };
+
+
+                    imagen.onerror =
+                        function () {
+
+                            reject(
+                                new Error(
+                                    "No se pudo procesar una imagen."
+                                )
+                            );
+
+                        };
+
+
+                    imagen.src =
+                        evento.target.result;
+
+                };
+
+
+            lector.onerror =
+                function () {
+
+                    reject(
+                        new Error(
+                            "No se pudo leer la imagen."
+                        )
+                    );
+
+                };
+
+
+            lector.readAsDataURL(
+                archivo
+            );
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   PREPARAR FOTOS
+===================================================== */
+
+async function prepararFotos() {
+
+    const archivoFrontal =
+        $("cedulaFrontal")?.files?.[0] ||
+        null;
+
+
+    const archivoTrasera =
+        $("cedulaTrasera")?.files?.[0] ||
+        null;
+
+
+    const archivoCliente =
+        $("fotoCliente")?.files?.[0] ||
+        null;
+
+
+    return {
+
+        cedulaFrontal:
+            await comprimirImagen(
+                archivoFrontal
+            ),
+
+        cedulaTrasera:
+            await comprimirImagen(
+                archivoTrasera
+            ),
+
+        fotoCliente:
+            await comprimirImagen(
+                archivoCliente
+            )
+
+    };
+
+}
 
 async function guardarRegistro() {
 
@@ -447,6 +657,14 @@ async function guardarRegistro() {
 
 
     /* =========================
+    PREPARAR FOTOS
+ ========================= */
+
+    const fotos =
+        await prepararFotos();
+
+
+    /* =========================
        REGISTRO COMPLETO
     ========================= */
 
@@ -457,6 +675,8 @@ async function guardarRegistro() {
         dispositivo: dispositivo,
 
         credito: credito,
+
+        fotos: fotos,
 
         fechaRegistro:
             new Date().toISOString()
