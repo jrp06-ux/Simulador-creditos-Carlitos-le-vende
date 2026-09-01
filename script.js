@@ -6,6 +6,7 @@ const $ = (id) => document.getElementById(id);
 
 const calcularBtn = $("calcularBtn");
 const whatsappBtn = $("whatsappBtn");
+const cerrarCreditoBtn = $("cerrarCreditoBtn");
 
 const clienteInput = $("cliente");
 const telefonoInput = $("telefono");
@@ -23,6 +24,8 @@ const simboloInicial = $("simboloInicial");
 const ayudaInicial = $("ayudaInicial");
 
 const STORAGE_KEY = "simuladorCredito";
+
+const GASTOS_PLATAFORMA = 150000;
 
 
 /* =====================================================
@@ -43,19 +46,23 @@ const formatoFecha = new Intl.DateTimeFormat("es-CO", {
 
 
 function moneda(valor) {
+
     return formatoMoneda.format(
-        Number.isFinite(Number(valor)) ? Number(valor) : 0
+        Math.round(Number(valor) || 0)
     );
+
 }
 
 
 function formatearFecha(fecha) {
+
     return formatoFecha.format(fecha);
+
 }
 
 
 /* =====================================================
-   INICIO
+   INICIAR APLICACIÓN
 ===================================================== */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -89,8 +96,13 @@ function activarEventos() {
     );
 
 
+    cerrarCreditoBtn?.addEventListener(
+        "click",
+        cerrarCredito
+    );
+
     /*
-       Guardado automático
+       GUARDADO AUTOMÁTICO
     */
 
     document
@@ -111,7 +123,7 @@ function activarEventos() {
 
 
     /*
-       Tipo de cuota inicial
+       CAMBIAR TIPO DE INICIAL
     */
 
     tipoInicialInput?.addEventListener(
@@ -127,17 +139,23 @@ function activarEventos() {
 
 
     /*
-       Actualizar cuota inicial automática
+       ACTUALIZAR 1/3 AUTOMÁTICAMENTE
     */
 
     precioInput?.addEventListener(
         "input",
-        actualizarInicialAutomatica
+        () => {
+
+            actualizarInicialAutomatica();
+
+            actualizarProteccion();
+
+        }
     );
 
 
     /*
-       Protección
+       ACTIVAR / DESACTIVAR PROTECCIÓN
     */
 
     proteccionInput?.addEventListener(
@@ -155,33 +173,128 @@ function activarEventos() {
 
 
 /* =====================================================
-   PROTECCIÓN
+   PROTECCIÓN CARLITOS LE VENDE
 ===================================================== */
+
+function calcularValorProteccion(precio) {
+
+    /*
+       Hasta $1.000.000
+    */
+
+    if (precio <= 1000000) {
+
+        return 8000;
+
+    }
+
+
+    /*
+       Más de $1.000.000 hasta $2.000.000
+    */
+
+    if (precio <= 2000000) {
+
+        return 12000;
+
+    }
+
+
+    /*
+       Más de $2.000.000 hasta $3.000.000
+    */
+
+    if (precio <= 3000000) {
+
+        return 14500;
+
+    }
+
+
+    /*
+       Más de $3.000.000 hasta $4.000.000
+    */
+
+    if (precio <= 4000000) {
+
+        return 16500;
+
+    }
+
+
+    /*
+       Más de $4.000.000
+    */
+
+    return 18000;
+
+}
+
 
 function actualizarProteccion() {
 
     const container =
         $("proteccionPrecioContainer");
 
-    if (!container || !proteccionInput) {
+
+    if (
+        !proteccionInput ||
+        !container ||
+        !valorProteccionInput
+    ) {
+
         return;
+
     }
 
 
     /*
-       El precio de protección solamente
-       se muestra cuando está activa.
+       SI NO HAY PROTECCIÓN
     */
 
-    if (proteccionInput.value === "si") {
-
-        container.style.display = "";
-
-    } else {
+    if (proteccionInput.value !== "si") {
 
         container.style.display = "none";
 
+        return;
+
     }
+
+
+    /*
+       MOSTRAR PROTECCIÓN
+    */
+
+    container.style.display = "";
+
+
+    const precio =
+        Number(precioInput.value);
+
+
+    /*
+       SI HAY PRECIO VÁLIDO,
+       CALCULAR AUTOMÁTICAMENTE
+    */
+
+    if (precio > 0) {
+
+        const valor =
+            calcularValorProteccion(precio);
+
+
+        valorProteccionInput.value =
+            valor;
+
+    }
+
+
+    /*
+       NO PERMITIR MODIFICAR
+       MANUALMENTE EL VALOR
+    */
+
+    valorProteccionInput.readOnly = true;
 
 }
 
@@ -192,9 +305,7 @@ function actualizarProteccion() {
 
 function actualizarTipoInicial() {
 
-    if (!tipoInicialInput) {
-        return;
-    }
+    if (!tipoInicialInput) return;
 
 
     const tipo =
@@ -202,16 +313,20 @@ function actualizarTipoInicial() {
 
 
     /*
-       TERCERA PARTE
+       RECOMENDADA 1/3
     */
 
     if (tipo === "terceraParte") {
 
         inicialInput.disabled = false;
 
+
         if (simboloInicial) {
+
             simboloInicial.textContent = "$";
+
         }
+
 
         if (ayudaInicial) {
 
@@ -219,6 +334,7 @@ function actualizarTipoInicial() {
                 "Se recomienda una cuota inicial equivalente a la tercera parte del valor del equipo. Puedes modificarla.";
 
         }
+
 
         inicialInput.placeholder =
             "Valor recomendado automáticamente";
@@ -232,16 +348,20 @@ function actualizarTipoInicial() {
 
 
     /*
-       PESOS
+       VALOR EN PESOS
     */
 
     if (tipo === "pesos") {
 
         inicialInput.disabled = false;
 
+
         if (simboloInicial) {
+
             simboloInicial.textContent = "$";
+
         }
+
 
         if (ayudaInicial) {
 
@@ -249,6 +369,7 @@ function actualizarTipoInicial() {
                 "Ingresa el valor que el cliente dará como cuota inicial.";
 
         }
+
 
         inicialInput.placeholder =
             "Ej. 500000";
@@ -266,9 +387,13 @@ function actualizarTipoInicial() {
 
         inicialInput.disabled = false;
 
+
         if (simboloInicial) {
+
             simboloInicial.textContent = "%";
+
         }
+
 
         if (ayudaInicial) {
 
@@ -276,6 +401,7 @@ function actualizarTipoInicial() {
                 "Ingresa el porcentaje que el cliente dará como cuota inicial.";
 
         }
+
 
         inicialInput.placeholder =
             "Ej. 30";
@@ -286,7 +412,7 @@ function actualizarTipoInicial() {
 
 
 /* =====================================================
-   CUOTA INICIAL AUTOMÁTICA
+   CALCULAR 1/3 AUTOMÁTICAMENTE
 ===================================================== */
 
 function actualizarInicialAutomatica() {
@@ -295,7 +421,9 @@ function actualizarInicialAutomatica() {
         !tipoInicialInput ||
         tipoInicialInput.value !== "terceraParte"
     ) {
+
         return;
+
     }
 
 
@@ -303,7 +431,7 @@ function actualizarInicialAutomatica() {
         Number(precioInput.value);
 
 
-    if (!Number.isFinite(precio) || precio <= 0) {
+    if (!precio || precio <= 0) {
 
         inicialInput.value = "";
 
@@ -323,6 +451,10 @@ function actualizarInicialAutomatica() {
 ===================================================== */
 
 function calcularCredito() {
+
+    /* =================================================
+       DATOS
+    ================================================= */
 
     const cliente =
         clienteInput.value.trim();
@@ -345,34 +477,17 @@ function calcularCredito() {
     const interesMensual =
         Number(interesInput.value);
 
-    const numeroCuotas =
+    const cuotas =
         Number(cuotasInput.value);
-
-
-    /* =================================================
-       PROTECCIÓN
-    ================================================= */
-
-    const proteccionActiva =
-        proteccionInput.value === "si";
-
-
-    const valorProteccionMensual =
-        Number(valorProteccionInput.value);
 
 
     /* =================================================
        VALIDACIONES
     ================================================= */
 
-    if (
-        !Number.isFinite(precio) ||
-        precio <= 0
-    ) {
+    if (!precio || precio <= 0) {
 
-        alert(
-            "Ingresa un precio válido."
-        );
+        alert("Ingresa un precio válido.");
 
         return;
 
@@ -380,23 +495,18 @@ function calcularCredito() {
 
 
     if (
-        !Number.isFinite(interesMensual) ||
+        isNaN(interesMensual) ||
         interesMensual < 0
     ) {
 
-        alert(
-            "Ingresa un interés válido."
-        );
+        alert("Ingresa un interés válido.");
 
         return;
 
     }
 
 
-    if (
-        !Number.isInteger(numeroCuotas) ||
-        numeroCuotas <= 0
-    ) {
+    if (!cuotas || cuotas <= 0) {
 
         alert(
             "Selecciona un número válido de cuotas."
@@ -407,32 +517,15 @@ function calcularCredito() {
     }
 
 
-    if (
-        proteccionActiva &&
-        (
-            !Number.isFinite(valorProteccionMensual) ||
-            valorProteccionMensual < 0
-        )
-    ) {
-
-        alert(
-            "Ingresa un valor mensual válido para la protección."
-        );
-
-        return;
-
-    }
-
-
     /* =================================================
-       CALCULAR CUOTA INICIAL
+       CUOTA INICIAL
     ================================================= */
 
     let inicial;
 
 
     /*
-       PESOS / TERCERA PARTE
+       TERCERA PARTE O PESOS
     */
 
     if (
@@ -455,13 +548,13 @@ function calcularCredito() {
     ) {
 
         if (
-            !Number.isFinite(valorInicial) ||
+            !valorInicial ||
             valorInicial <= 0 ||
             valorInicial >= 100
         ) {
 
             alert(
-                "Ingresa un porcentaje entre 0 y 100."
+                "Ingresa un porcentaje válido entre 1 y 99."
             );
 
             return;
@@ -491,14 +584,11 @@ function calcularCredito() {
         Math.round(inicial);
 
 
-    /* =================================================
-       VALIDAR CUOTA INICIAL
-    ================================================= */
+    /*
+       VALIDAR INICIAL
+    */
 
-    if (
-        !Number.isFinite(inicial) ||
-        inicial <= 0
-    ) {
+    if (!inicial || inicial <= 0) {
 
         alert(
             "Ingresa una cuota inicial válida."
@@ -530,13 +620,10 @@ function calcularCredito() {
 
     /* =================================================
        INTERÉS MENSUAL → QUINCENAL
-       
-       Si el interés mensual es 3%:
 
-       tasa quincenal =
-       (1 + 0.03)^(1/2) - 1
+       Conversión efectiva:
 
-       Esto produce aproximadamente 1.49%.
+       (1 + tasa mensual)^(1/2) - 1
     ================================================= */
 
     const tasaMensual =
@@ -551,7 +638,9 @@ function calcularCredito() {
 
 
     /* =================================================
-       CUOTA FINANCIERA QUINCENAL
+       CUOTA FINANCIERA
+
+       Incluye capital + intereses.
     ================================================= */
 
     let cuotaFinanciera;
@@ -560,8 +649,7 @@ function calcularCredito() {
     if (tasaQuincenal === 0) {
 
         cuotaFinanciera =
-            montoFinanciado /
-            numeroCuotas;
+            montoFinanciado / cuotas;
 
     } else {
 
@@ -571,14 +659,14 @@ function calcularCredito() {
                 tasaQuincenal *
                 Math.pow(
                     1 + tasaQuincenal,
-                    numeroCuotas
+                    cuotas
                 )
             )
             /
             (
                 Math.pow(
                     1 + tasaQuincenal,
-                    numeroCuotas
+                    cuotas
                 ) - 1
             );
 
@@ -594,13 +682,8 @@ function calcularCredito() {
     ================================================= */
 
     const totalFinanciero =
-        cuotaFinanciera *
-        numeroCuotas;
+        cuotaFinanciera * cuotas;
 
-
-    /*
-       Total de intereses
-    */
 
     const totalIntereses =
         totalFinanciero -
@@ -611,36 +694,65 @@ function calcularCredito() {
        PROTECCIÓN
     ================================================= */
 
-    /*
-       Cada 2 cuotas = 30 días.
+    const proteccionActiva =
+        proteccionInput.value === "si";
 
-       Ejemplo con 6 cuotas:
 
-       2 → 1 mes
-       4 → 2 meses
-       6 → 3 meses
-    */
+    let proteccionPorCuota = 0;
 
-    const mesesProteccion =
-        proteccionActiva
-            ? Math.floor(numeroCuotas / 2)
-            : 0;
+
+    if (proteccionActiva) {
+
+        proteccionPorCuota =
+            calcularValorProteccion(precio);
+
+    }
 
 
     const totalProteccion =
-        proteccionActiva
-            ? valorProteccionMensual *
-              mesesProteccion
-            : 0;
+        proteccionPorCuota * cuotas;
+
+
+    /* =================================================
+       GASTOS Y MANTENIMIENTO DE PLATAFORMA
+
+       $150.000 DISTRIBUIDOS ENTRE TODAS LAS CUOTAS
+    ================================================= */
+
+    const gastosPlataforma =
+        GASTOS_PLATAFORMA;
+
+
+    const plataformaPorCuota =
+        gastosPlataforma / cuotas;
+
+
+    /* =================================================
+       CUOTA FINAL
+
+       CUOTA FINANCIERA
+       + PROTECCIÓN
+       + PLATAFORMA
+    ================================================= */
+
+    const cuotaFinalExacta =
+        cuotaFinanciera +
+        proteccionPorCuota +
+        plataformaPorCuota;
 
 
     /* =================================================
        TOTAL A PAGAR
+
+       Crédito + intereses
+       + protección
+       + plataforma
     ================================================= */
 
     const totalPagar =
         totalFinanciero +
-        totalProteccion;
+        totalProteccion +
+        gastosPlataforma;
 
 
     /* =================================================
@@ -652,15 +764,13 @@ function calcularCredito() {
 
 
     /* =================================================
-       OBJETO DEL CRÉDITO
+       GUARDAR CRÉDITO
     ================================================= */
 
     window.creditoActual = {
 
         cliente,
-
         telefono,
-
         equipo,
 
         precio,
@@ -673,15 +783,13 @@ function calcularCredito() {
 
         montoFinanciado,
 
-        interes: interesMensual,
-
-        tasaMensual,
+        interesMensual,
 
         tasaQuincenal,
 
-        cuotas: numeroCuotas,
+        cuotas,
 
-        cuota: cuotaFinanciera,
+        cuotaFinanciera,
 
         totalFinanciero,
 
@@ -689,14 +797,15 @@ function calcularCredito() {
 
         proteccionActiva,
 
-        proteccionMensual:
-            proteccionActiva
-                ? valorProteccionMensual
-                : 0,
-
-        mesesProteccion,
+        proteccionPorCuota,
 
         totalProteccion,
+
+        gastosPlataforma,
+
+        plataformaPorCuota,
+
+        cuotaFinalExacta,
 
         totalPagar
 
@@ -704,7 +813,7 @@ function calcularCredito() {
 
 
     /* =================================================
-       MOSTRAR
+       MOSTRAR RESULTADOS
     ================================================= */
 
     mostrarResultados(
@@ -744,33 +853,40 @@ function mostrarResultados(credito) {
         moneda(credito.totalIntereses);
 
 
+    /*
+       El total incluye:
+       crédito + intereses + protección + plataforma
+    */
+
     $("resTotal").textContent =
         moneda(credito.totalPagar);
 
 
+    /*
+       Mostramos la cuota final aproximada.
+
+       En la tabla se ajustan los redondeos
+       para que el total sea exacto.
+    */
+
     $("resCuota").textContent =
-        moneda(credito.cuota);
+        moneda(credito.cuotaFinalExacta);
 
 
     $("resNumeroCuotas").textContent =
-        `${credito.cuotas} cuotas quincenales`;
+        `${credito.cuotas} cuotas cada 15 días`;
 
 }
 
 
 /* =====================================================
-   TABLA DE PAGOS
+   GENERAR TABLA DE PAGOS
 ===================================================== */
 
 function generarTabla(credito) {
 
     const tabla =
         $("tablaCuotas");
-
-
-    if (!tabla) {
-        return;
-    }
 
 
     tabla.innerHTML = "";
@@ -780,14 +896,13 @@ function generarTabla(credito) {
         document.createDocumentFragment();
 
 
+    /*
+       FECHA DE INICIO
+    */
+
     const fechaInicio =
         new Date();
 
-
-    /*
-       Evita problemas si la hora actual
-       provoca cambios inesperados de fecha.
-    */
 
     fechaInicio.setHours(
         12,
@@ -797,17 +912,46 @@ function generarTabla(credito) {
     );
 
 
+    /*
+       Para distribuir exactamente
+       los $150.000 incluso cuando
+       la división da decimales.
+    */
+
+    const plataformaBase =
+        Math.floor(
+            credito.gastosPlataforma /
+            credito.cuotas
+        );
+
+
+    const plataformaRestante =
+        credito.gastosPlataforma -
+        (
+            plataformaBase *
+            credito.cuotas
+        );
+
+
+    /*
+       El restante se distribuye
+       $1 por cuota al principio.
+
+       Así la suma siempre da
+       exactamente $150.000.
+    */
+
+
     for (
-        let numero = 1;
-        numero <= credito.cuotas;
-        numero++
+        let i = 1;
+        i <= credito.cuotas;
+        i++
     ) {
 
         /* =============================================
            FECHA
 
-           Cada cuota está separada exactamente
-           por 15 días.
+           15 / 30 / 45 / 60 días
         ============================================= */
 
         const fecha =
@@ -816,39 +960,43 @@ function generarTabla(credito) {
 
         fecha.setDate(
             fecha.getDate() +
-            (numero * 15)
+            (i * 15)
         );
 
 
         /* =============================================
-           PROTECCIÓN
+           PLATAFORMA
 
-           Se cobra cada 30 días:
-
-           cuota 2
-           cuota 4
-           cuota 6
-           etc.
+           Distribución exacta
         ============================================= */
 
-        const cobraProteccion =
-            credito.proteccionActiva &&
-            numero % 2 === 0;
+        const plataformaCuota =
+            plataformaBase +
+            (
+                i <= plataformaRestante
+                    ? 1
+                    : 0
+            );
 
+
+        /* =============================================
+           PROTECCIÓN
+        ============================================= */
 
         const proteccion =
-            cobraProteccion
-                ? credito.proteccionMensual
+            credito.proteccionActiva
+                ? credito.proteccionPorCuota
                 : 0;
 
 
         /* =============================================
-           VALOR TOTAL DE LA CUOTA
+           VALOR FINAL
         ============================================= */
 
         const valorCuota =
-            credito.cuota +
-            proteccion;
+            credito.cuotaFinanciera +
+            proteccion +
+            plataformaCuota;
 
 
         /* =============================================
@@ -860,38 +1008,50 @@ function generarTabla(credito) {
 
 
         fila.innerHTML = `
-            <td>${numero}</td>
+            <td>${i}</td>
 
             <td>
                 ${formatearFecha(fecha)}
+                <br>
+                <small>Día ${i * 15}</small>
             </td>
 
             <td>
-                ${moneda(valorCuota)}
+                <strong>
+                    ${moneda(valorCuota)}
+                </strong>
 
-                ${
-                    cobraProteccion
-                        ? `
+                <br>
+
+                <small>
+                    Crédito: ${moneda(credito.cuotaFinanciera)}
+                </small>
+
+                ${credito.proteccionActiva
+                ? `
+                            <br>
                             <small>
-                                Protección: ${moneda(proteccion)}
+                                🛡️ Protección: ${moneda(proteccion)}
                             </small>
-                          `
-                        : ""
-                }
+                        `
+                : ""
+            }
+
+                <br>
+
+                <small>
+                    💻 Plataforma: ${moneda(plataformaCuota)}
+                </small>
             </td>
         `;
 
 
-        fragment.appendChild(
-            fila
-        );
+        fragment.appendChild(fila);
 
     }
 
 
-    tabla.appendChild(
-        fragment
-    );
+    tabla.appendChild(fragment);
 
 }
 
@@ -925,7 +1085,7 @@ function enviarWhatsApp() {
 
 
     /*
-       Número colombiano
+       NÚMERO COLOMBIANO
     */
 
     if (
@@ -954,8 +1114,7 @@ function enviarWhatsApp() {
        MENSAJE
     ================================================= */
 
-    let mensaje =
-`Hola ${credito.cliente || "👋"}.
+    let mensaje = `Hola ${credito.cliente || "👋"}.
 
 Te compartimos la simulación de financiación de tu equipo:
 
@@ -967,13 +1126,15 @@ Te compartimos la simulación de financiación de tu equipo:
 
 📊 Monto financiado: ${moneda(credito.montoFinanciado)}
 
-📈 Interés mensual: ${credito.interes}%
+📈 Interés mensual: ${credito.interesMensual}%
 
 📆 Plazo: ${credito.cuotas} cuotas cada 15 días
 
-💳 Valor de la cuota financiera: ${moneda(credito.cuota)}
+💳 Cuota financiera:
+${moneda(credito.cuotaFinanciera)}
 
-💰 Total de intereses: ${moneda(credito.totalIntereses)}`;
+💰 Total de intereses:
+${moneda(credito.totalIntereses)}`;
 
 
     /* =================================================
@@ -982,50 +1143,58 @@ Te compartimos la simulación de financiación de tu equipo:
 
     if (credito.proteccionActiva) {
 
-        mensaje +=
-`
+        mensaje += `
 
-🛡️ Protección CARLITOS LE VENDE: Sí
+🛡️ PROTECCIÓN CARLITOS LE VENDE
 
-💵 Valor mensual de protección: ${moneda(credito.proteccionMensual)}
+Valor por cuota:
+${moneda(credito.proteccionPorCuota)}
 
-📆 Cobro de protección: cada 30 días
-
-📅 Meses de protección: ${credito.mesesProteccion}
-
-🛡️ Total de protección: ${moneda(credito.totalProteccion)}`;
+Total protección:
+${moneda(credito.totalProteccion)}`;
 
     } else {
 
-        mensaje +=
-`
+        mensaje += `
 
-🛡️ Protección CARLITOS LE VENDE: No agregada`;
+🛡️ Protección CARLITOS LE VENDE:
+No agregada`;
 
     }
 
 
     /* =================================================
-       TOTAL
+       PLATAFORMA
     ================================================= */
 
-    mensaje +=
-`
+    mensaje += `
 
-💵 Total a pagar: ${moneda(credito.totalPagar)}
+💻 GASTOS Y MANTENIMIENTO DE PLATAFORMA
 
-Las cuotas se generan cada 15 días.
-Cuando se contrata la Protección CARLITOS LE VENDE,
-su valor se cobra mensualmente cada 30 días y se
-incluye en las cuotas correspondientes.
+Valor total:
+${moneda(credito.gastosPlataforma)}
 
-Esta información corresponde a una simulación
-de financiación de CARLITOS LE VENDE.`;
+Este valor se distribuye entre las ${credito.cuotas} cuotas.`;
 
 
     /* =================================================
-       WHATSAPP
+       CUOTA FINAL
     ================================================= */
+
+    mensaje += `
+
+💳 Valor aproximado de cada cuota:
+${moneda(credito.cuotaFinalExacta)}
+
+💰 TOTAL A PAGAR:
+${moneda(credito.totalPagar)}
+
+📆 Las cuotas se pagan cada 15 días.
+
+El valor de cada cuota incluye el crédito financiado, los intereses, la Protección CARLITOS LE VENDE cuando está incluida y la parte correspondiente de gastos y mantenimiento de plataforma.
+
+Esta información corresponde a una simulación de financiación de CARLITOS LE VENDE.`;
+
 
     const url =
         `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
@@ -1044,15 +1213,6 @@ de financiación de CARLITOS LE VENDE.`;
 ===================================================== */
 
 function guardarDatos() {
-
-    if (
-        !clienteInput ||
-        !telefonoInput ||
-        !equipoInput
-    ) {
-        return;
-    }
-
 
     const datos = {
 
@@ -1109,9 +1269,7 @@ function cargarDatos() {
         );
 
 
-    if (!guardado) {
-        return;
-    }
+    if (!guardado) return;
 
 
     try {
@@ -1160,7 +1318,7 @@ function cargarDatos() {
 
         valorProteccionInput.value =
             datos.valorProteccion ||
-            "20000";
+            "";
 
 
     } catch (error) {
@@ -1174,6 +1332,62 @@ function cargarDatos() {
 
 }
 
+/* =====================================================
+   CERRAR CRÉDITO
+===================================================== */
+
+function cerrarCredito() {
+
+    const credito = window.creditoActual;
+
+
+    /*
+       Verificar que exista una simulación
+    */
+
+    if (!credito) {
+
+        alert(
+            "Primero debes calcular la financiación antes de cerrar el crédito."
+        );
+
+        return;
+
+    }
+
+
+    /*
+       Confirmar acción
+    */
+
+    const confirmar = confirm(
+        `¿Deseas continuar con el registro del crédito de ${credito.cliente || "este cliente"
+        }?`
+    );
+
+
+    if (!confirmar) return;
+
+
+    /*
+       Guardar información completa del crédito
+       para utilizarla en registro.html
+    */
+
+    localStorage.setItem(
+        "creditoEnRegistro",
+        JSON.stringify(credito)
+    );
+
+
+    /*
+       Ir a la página de registro
+    */
+
+    window.location.href =
+        "registro.html";
+
+}
 
 /* =====================================================
    NUEVA SIMULACIÓN
@@ -1187,13 +1401,11 @@ function nuevaSimulacion() {
         );
 
 
-    if (!confirmar) {
-        return;
-    }
+    if (!confirmar) return;
 
 
     /* =================================================
-       BORRAR STORAGE
+       BORRAR LOCALSTORAGE
     ================================================= */
 
     localStorage.removeItem(
@@ -1205,13 +1417,17 @@ function nuevaSimulacion() {
        LIMPIAR INPUTS
     ================================================= */
 
-    document
-        .querySelectorAll("input")
-        .forEach(input => {
+    clienteInput.value = "";
 
-            input.value = "";
+    telefonoInput.value = "";
 
-        });
+    equipoInput.value = "";
+
+    precioInput.value = "";
+
+    inicialInput.value = "";
+
+    interesInput.value = "";
 
 
     /* =================================================
@@ -1231,62 +1447,45 @@ function nuevaSimulacion() {
 
 
     valorProteccionInput.value =
-        "20000";
+        "";
 
 
     /* =================================================
        LIMPIAR RESULTADOS
     ================================================= */
 
-    const resultados = {
+    $("resPrecio").textContent =
+        "$0";
 
-        resPrecio: "$0",
+    $("resInicial").textContent =
+        "$0";
 
-        resInicial: "$0",
+    $("resFinanciado").textContent =
+        "$0";
 
-        resFinanciado: "$0",
+    $("resIntereses").textContent =
+        "$0";
 
-        resIntereses: "$0",
+    $("resTotal").textContent =
+        "$0";
 
-        resTotal: "$0",
+    $("resCuota").textContent =
+        "$0";
 
-        resCuota: "$0",
-
-        resNumeroCuotas: "0 cuotas"
-
-    };
-
-
-    Object.entries(resultados)
-        .forEach(([id, valor]) => {
-
-            const elemento =
-                $(id);
-
-            if (elemento) {
-
-                elemento.textContent =
-                    valor;
-
-            }
-
-        });
+    $("resNumeroCuotas").textContent =
+        "0 cuotas";
 
 
     /* =================================================
        LIMPIAR TABLA
     ================================================= */
 
-    if ($("tablaCuotas")) {
-
-        $("tablaCuotas").innerHTML =
-            "";
-
-    }
+    $("tablaCuotas").innerHTML =
+        "";
 
 
     /* =================================================
-       ELIMINAR CRÉDITO ACTUAL
+       BORRAR CRÉDITO ACTUAL
     ================================================= */
 
     window.creditoActual =
