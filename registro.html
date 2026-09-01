@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+
+<html lang="es">
+
+<head>
+
+    ```
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>
+        Registro de Cliente | Carlitos Le Vende
+    </title>
+
+    <link rel="stylesheet" href="style.css">
+    ```
+
+</head>
+
+<body>
+
+    ```
+    <!-- =================================================
+     HEADER
+================================================= -->
+
+    <header class="topbar">
+
+        <div class="brand">
+
+            <div class="brand-logo">
+
+                <img src="logo carlitos.png" alt="Carlitos Le Vende">
+
+            </div>
+
+
+            <div class="brand-info">
+
+                <h1>
+                    Registro de Crédito
+                </h1>
+
+                <p>
+                    Completa la información del cliente
+                </p>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- =================================================
+     CONTENIDO
+================================================= -->
+
+    <main class="container">
+
+
+        <!-- =============================================
+         RESUMEN DEL CRÉDITO
+    ============================================== -->
+
+        <section class="card">
+
+            <div class="card-header">
+
+                <h2>
+                    💳 Resumen de la financiación
+                </h2>
+
+                <p>
+                    Información generada desde el simulador
+                </p>
+
+            </div>
+
+
+            <div class="resumen-credito">
+
+                <div class="resumen-item">
+
+                    <span>
+                        Equipo
+                    </span>
+
+                    <strong id="resEquipo">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div class="resumen-item">
+
+                    <span>
+                        Precio
+                    </span>
+
+                    <strong id="resPrecio">
+                        $0
+                    </strong>
+
+                </div>
+
+
+                <div class="resumen-item">
+
+                    <span>
+                        Cuota inicial
+                    </span>
+
+                    <strong id="resInicial">
+                        $0
+                    </strong>
+
+                </div>
+
+
+                <div class="resumen-item">
+
+                    <span>
+                        Monto financiado
+                    </span>
+
+                    <strong id="resFinanciado">
+                        $0
+                    </strong>
+
+                </div>
+
+
+                <div class="resumen-item">
+
+                    <span>
+                        Interés mensual
+                    </span>
+
+                    <strong id="resInteres">
+                        0%
+                    </strong>
+
+                </div>
+
+
+                <div class="resumen-item">
+
+                    <span>
+                        Número de cuotas
+                    </span>
+
+                    <strong id="resCuotas">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="resumen-item">
+
+                    <span>
+                        Valor aproximado por cuota
+                    </span>
+
+                    <strong id="resValorCuota">
+                        $0
+                    </strong>
+
+                </div>
+
+
+                <div class="resumen-item">
+
+                    <span>
+                        Protección
+                    </span>
+
+                    <strong id="resProteccion">
+                        No incluida
+                    </strong>
+
+                </div>
+
+
+                <div class="resumen-item">
+
+                    <span>
+                        Gastos de plataforma
+                    </span>
+
+                    <strong id="resPlataforma">
+                        $0
+                    </strong>
+
+                </div>
+
+
+                <div class="resumen-item total">
+
+                    <span>
+                        Total a pagar
+                    </span>
+
+                    <strong id="resTotal">
+                        $0
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =============================================
+         DATOS DEL CLIENTE
+    ============================================== -->
+
+        <section class="card">
+
+            <div class="card-header">
+
+                <h2>
+                    👤 Información del cliente
+                </h2>
+
+                <p>
+                    Completa los datos para registrar el crédito.
+                </p>
+
+            </div>
+
+
+            <div class="section">
+
+                <div class="form-grid">
+
+
+                    <div class="input-group">
+
+                        <label for="nombreCompleto">
+                            Nombre completo
+                        </label>
+
+                        <input type="text" id="nombreCompleto" placeholder="Nombre completo del cliente">
+
+                    </div>
+
+
+
+                    <div class="input-group">
+
+                        <label for="tipoDocumento">
+                            Tipo de documento
+                        </label>
+
+                        <select id="tipoDocumento">
+
+                            <option value="">
+                                Selecciona una opción
+                            </option>
+
+                            <option value="CC">
+                                Cédula de ciudadanía
+                            </option>
+
+                            <option value="CE">
+                                Cédula de extranjería
+                            </option>
+
+                            <option value="PASAPORTE">
+                                Pasaporte
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+
+                    <div class="input-group">
+
+                        <label for="documento">
+                            Número de documento
+                        </label>
+
+                        <input type="text" id="documento" placeholder="Número de documento">
+
+                    </div>
+
+
+
+                    <div class="input-group">
+
+                        <label for="fechaNacimiento">
+                            Fecha de nacimiento
+                        </label>
+
+                        <input type="date" id="fechaNacimiento">
+
+                    </div>
+
+
+
+                    <div class="input-group">
+
+                        <label for="telefono">
+                            Teléfono / WhatsApp
+                        </label>
+
+                        <input type="tel" id="telefono" placeholder="3001234567">
+
+                    </div>
+
+
+
+                    <div class="input-group">
+
+                        <label for="telefonoAlternativo">
+                            Teléfono alternativo
+                        </label>
+
+                        <input type="tel" id="telefonoAlternativo" placeholder="Opcional">
+
+                    </div>
+
+
+
+                    <div class="input-group">
+
+                        <label for="correo">
+                            Correo electrónico
+                        </label>
+
+                        <input type="email" id="correo" placeholder="cliente@email.com">
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =============================================
+         DIRECCIÓN
+    ============================================== -->
+
+        <section class="card">
+
+            <div class="card-header">
+
+                <h2>
+                    📍 Dirección
+                </h2>
+
+            </div>
+
+
+            <div class="form-grid">
+
+
+                <div class="input-group">
+
+                    <label for="direccion">
+                        Dirección
+                    </label>
+
+                    <input type="text" id="direccion" placeholder="Dirección completa">
+
+                </div>
+
+
+
+                <div class="input-group">
+
+                    <label for="ciudad">
+                        Ciudad
+                    </label>
+
+                    <input type="text" id="ciudad" placeholder="Ej. Pereira">
+
+                </div>
+
+
+
+                <div class="input-group">
+
+                    <label for="barrio">
+                        Barrio
+                    </label>
+
+                    <input type="text" id="barrio" placeholder="Barrio">
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =============================================
+         DOCUMENTOS
+    ============================================== -->
+
+        <section class="card">
+
+            <div class="card-header">
+
+                <h2>
+                    🪪 Documentos del cliente
+                </h2>
+
+                <p>
+                    Los documentos serán guardados posteriormente
+                    en el sistema.
+                </p>
+
+            </div>
+
+
+            <div class="form-grid">
+
+
+                <div class="input-group">
+
+                    <label for="cedulaFrontal">
+                        Foto frontal de la cédula
+                    </label>
+
+                    <input type="file" id="cedulaFrontal" accept="image/*" capture="environment">
+
+                </div>
+
+
+
+                <div class="input-group">
+
+                    <label for="cedulaTrasera">
+                        Foto trasera de la cédula
+                    </label>
+
+                    <input type="file" id="cedulaTrasera" accept="image/*" capture="environment">
+
+                </div>
+
+
+
+                <div class="input-group">
+
+                    <label for="fotoCliente">
+                        Foto del cliente
+                    </label>
+
+                    <input type="file" id="fotoCliente" accept="image/*" capture="user">
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =============================================
+         INFORMACIÓN DEL DISPOSITIVO
+    ============================================== -->
+
+        <section class="card">
+
+            <div class="card-header">
+
+                <h2>
+                    📱 Información del dispositivo
+                </h2>
+
+            </div>
+
+
+            <div class="form-grid">
+
+
+                <div class="input-group">
+
+                    <label for="marca">
+                        Marca
+                    </label>
+
+                    <input type="text" id="marca" placeholder="Ej. Apple">
+
+                </div>
+
+
+
+                <div class="input-group">
+
+                    <label for="modelo">
+                        Modelo
+                    </label>
+
+                    <input type="text" id="modelo" placeholder="Ej. iPhone 15">
+
+                </div>
+
+
+
+                <div class="input-group">
+
+                    <label for="color">
+                        Color
+                    </label>
+
+                    <input type="text" id="color" placeholder="Ej. Negro">
+
+                </div>
+
+
+
+                <div class="input-group">
+
+                    <label for="capacidad">
+                        Capacidad
+                    </label>
+
+                    <input type="text" id="capacidad" placeholder="Ej. 128 GB">
+
+                </div>
+
+
+
+                <div class="input-group">
+
+                    <label for="imei">
+                        IMEI
+                    </label>
+
+                    <input type="text" id="imei" placeholder="IMEI principal">
+
+                </div>
+
+
+
+                <div class="input-group">
+
+                    <label for="imei2">
+                        IMEI 2
+                    </label>
+
+                    <input type="text" id="imei2" placeholder="Opcional">
+
+                </div>
+
+
+
+                <div class="input-group">
+
+                    <label for="serial">
+                        Número de serie
+                    </label>
+
+                    <input type="text" id="serial" placeholder="Serial del dispositivo">
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =============================================
+         ACCIONES
+    ============================================== -->
+
+        <section class="card acciones">
+
+            <button type="button" class="btn-secondary" id="volverBtn">
+
+                ← Volver al simulador
+
+            </button>
+
+
+            <button type="button" class="btn-primary" id="guardarBtn">
+
+                💾 Guardar crédito
+
+            </button>
+
+        </section>
+
+
+    </main>
+
+
+
+    <footer>
+
+        <p>
+            CARLITOS LE VENDE · Registro de créditos
+        </p>
+
+    </footer>
+
+
+    <script src="registro.js"></script>
+    ```
+
+</body>
+
+</html>
